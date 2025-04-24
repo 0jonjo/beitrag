@@ -48,3 +48,8 @@ group :development, :test do
   # Rspec for testing
   gem "rspec-rails", "~> 7.0.0"
 end
+
+group :test do
+  # Should matchers for Model tests
+  gem "shoulda-matchers", "~> 6.0"
+end
