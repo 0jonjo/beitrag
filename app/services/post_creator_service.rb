@@ -1,8 +1,8 @@
 class PostCreatorService
-  attr_reader :post, :errors, :created_post, :user
+  attr_reader :params, :errors, :created_post, :user
 
-  def initialize(post)
-    @post = post
+  def initialize(params)
+    @params = params
     @errors = []
     @success = false
   end
@@ -12,11 +12,13 @@ class PostCreatorService
       @user = find_or_create_user
       @created_post = create_post
       @success = true
-    rescue ActiveRecord::RecordInvalid => e
-      @errors = e.record.errors.full_messages
-      @success = false
     end
-    self
+  rescue ActiveRecord::RecordInvalid => e
+    @errors = e.record.errors.full_messages
+    @success = false
+    @user = nil
+  ensure
+    return self
   end
 
   def success?
@@ -26,19 +28,17 @@ class PostCreatorService
   private
 
   def find_or_create_user
-    user_exists? ? User.find(post.user_id) : User.create!(login: "guest_#{SecureRandom.hex(4)}")
+    User.find_by!(login: @params[:login])
+  rescue ActiveRecord::RecordNotFound
+    User.create!(login: @params[:login])
   end
 
   def create_post
     Post.create!(
-      title: post.title,
-      body: post.body,
-      ip: post.ip,
-      user: user
+      title: @params[:title],
+      body: @params[:body],
+      ip: @params[:ip],
+      user: @user
     )
-  end
-
-  def user_exists?
-    User.exists?(id: post.user_id)
   end
 end

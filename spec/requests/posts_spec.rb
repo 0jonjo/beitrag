@@ -4,11 +4,11 @@ RSpec.describe 'Posts Routes', type: :request do
   describe 'POST #create' do
     let(:user) { create(:user) }
     let(:valid_attributes) { { post: { title: 'Test Title', body: 'Test Body',
-                              ip: '192.0.2.255', user_id: user.id } } }
+                              ip: '192.0.2.255', login: user.login } } }
     let(:invalid_attributes) { { post: { title: '', body: 'Test Body',
-                              ip: '192.0.2.255', user_id: user.id } } }
+                              ip: '192.0.2.255', login: user.login } } }
     let(:guest_attributes) { { post: { title: 'Test Title', body: 'Test Body',
-                              ip: '192.0.2.255', user_id: user.id + 9999 } } }
+                              ip: '192.0.2.255', login: "without_login" } } }
 
     context 'with valid attributes' do
       context 'when user exists' do
@@ -52,8 +52,7 @@ RSpec.describe 'Posts Routes', type: :request do
 
           json_response = JSON.parse(response.body)
           expect(json_response['post']).to be_present
-          expect(json_response['user']).to be_present
-          expect(json_response['user']['login']).to start_with('guest_')
+          expect(json_response['user']['login']).to eq(User.last.login)
         end
       end
     end

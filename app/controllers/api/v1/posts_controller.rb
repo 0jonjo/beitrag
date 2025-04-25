@@ -2,8 +2,7 @@ module Api
     module V1
         class PostsController < ApplicationController
             def create
-                @post = Post.new(post_params)
-                result = PostCreatorService.new(@post).call
+                result = PostCreatorService.new(post_params).call
 
                 if result.success?
                     render json: { post: result.created_post, user: result.user }, status: :created
@@ -15,7 +14,7 @@ module Api
             private
 
             def post_params
-                params.require(:post).permit(:title, :body, :ip, :user_id)
+                params.require(:post).permit(:title, :body, :ip, :login)
             end
         end
     end
