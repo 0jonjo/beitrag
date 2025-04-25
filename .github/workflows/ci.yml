@@ -75,5 +75,7 @@ jobs:
           DATABASE_URL: postgres://postgres:postgres@localhost:5432
           # REDIS_URL: redis://localhost:6379/0
         run: |
+          bin/rails db:create
+          bin/rails db:migrate
           bundle exec rails db:schema:load
           bundle exec rspec --format progress
