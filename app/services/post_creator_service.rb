@@ -26,7 +26,7 @@ class PostCreatorService
   private
 
   def find_or_create_user
-    user_exists? ? User.find(post.user_id) : User.create!(login: "guest_#{post.user_id}")
+    user_exists? ? User.find(post.user_id) : User.create!(login: "guest_#{SecureRandom.hex(4)}")
   end
 
   def create_post
