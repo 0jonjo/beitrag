@@ -25,7 +25,7 @@ RSpec.describe Rating, type: :model do
         rating
         duplicate_rating
         expect(duplicate_rating).not_to be_valid
-        expect(duplicate_rating.errors.messages[:user_id]).to include('A post can be rated once')
+        expect(duplicate_rating.errors.messages[:user_id]).to include('can rate a post only once')
       end
 
       it 'allows the same user to rate different posts' do
