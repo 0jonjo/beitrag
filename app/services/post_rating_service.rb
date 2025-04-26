@@ -46,7 +46,7 @@ class PostRatingService
 
   def calculate_average_rating
     @post.with_lock do
-      @post.ratings.average(:value).to_f
+      @post.ratings.average(:value).to_f.round(2)
     end
   end
 end
