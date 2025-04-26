@@ -13,4 +13,12 @@ class Post < ApplicationRecord
         .order("average_rating DESC, posts.id")
         .limit(limit)
   end
+
+  # Get IPs that were used by multiple different authors
+  def self.ips_with_multiple_authors
+    joins(:user)
+      .select("posts.ip, array_agg(DISTINCT users.login) as logins")
+      .group("posts.ip")
+      .having("COUNT(DISTINCT user_id) > 1")
+  end
 end

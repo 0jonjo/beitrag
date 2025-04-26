@@ -18,7 +18,6 @@ RSpec.describe Post, type: :model do
     let(:post3) { create(:post) }
     let(:post4) { create(:post) }
 
-
     before do
       create(:rating, post: post1, value: 5)
       create(:rating, post: post2, value: 3)
@@ -37,6 +36,34 @@ RSpec.describe Post, type: :model do
 
     it 'returns posts respecting the limit' do
       expect(Post.top_rated(2)).to eq([ post1, post2 ])
+    end
+  end
+
+  describe 'ips' do
+    let(:user1) { create(:user) }
+    let(:user2) { create(:user) }
+    let(:user3) { create(:user) }
+    let(:result) { Post.ips_with_multiple_authors }
+
+    before do
+      create(:post, user: user1, ip: '192.168.1.1')
+      create(:post, user: user2, ip: '192.168.1.1')
+      create(:post, user: user2, ip: '192.168.1.2')
+      create(:post, user: user3, ip: '192.168.1.2')
+      create(:post, user: user1, ip: '192.168.1.3')
+      create(:post, user: user1, ip: '192.168.1.3')
+    end
+
+    it 'does not include IPs used by a single user' do
+      expect(result.map(&:ip)).not_to include('192.168.1.3')
+    end
+
+    it 'includes an array of logins for each IP' do
+      ip1_record = result.find { |r| r.ip == '192.168.1.1' }
+      ip2_record = result.find { |r| r.ip == '192.168.1.2' }
+
+      expect(ip1_record.logins).to include(user1.login, user2.login)
+      expect(ip2_record.logins).to include(user2.login, user3.login)
     end
   end
 end
