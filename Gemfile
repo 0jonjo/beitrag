@@ -50,6 +50,9 @@ group :development, :test do
 
   # Factory Bot for testing
   gem "factory_bot_rails"
+
+  # Faker for generating fake data in tests
+  gem "faker"
 end
 
 group :test do

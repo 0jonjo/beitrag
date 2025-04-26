@@ -9,6 +9,7 @@ RSpec.describe 'Posts Routes', type: :request do
                               ip: '192.0.2.255', login: user.login } } }
     let(:guest_attributes) { { post: { title: 'Test Title', body: 'Test Body',
                               ip: '192.0.2.255', login: "without_login" } } }
+    let(:json_response) { JSON.parse(response.body) }
 
     context 'with valid attributes' do
       context 'when user exists' do
@@ -27,7 +28,6 @@ RSpec.describe 'Posts Routes', type: :request do
         it 'returns the created post with the user' do
           post api_v1_posts_path, params: valid_attributes, as: :json
 
-          json_response = JSON.parse(response.body)
           expect(json_response['post']).to be_present
           expect(json_response['user']).to be_present
           expect(json_response['post']['user_id']).to eq(user.id)
@@ -50,7 +50,6 @@ RSpec.describe 'Posts Routes', type: :request do
         it 'returns the created post with a guest user' do
           post api_v1_posts_path, params: guest_attributes, as: :json
 
-          json_response = JSON.parse(response.body)
           expect(json_response['post']).to be_present
           expect(json_response['user']['login']).to eq(User.last.login)
         end
@@ -73,7 +72,6 @@ RSpec.describe 'Posts Routes', type: :request do
       it 'returns error messages' do
         post api_v1_posts_path, params: invalid_attributes, as: :json
 
-        json_response = JSON.parse(response.body)
         expect(json_response['errors']).to include("Title can't be blank")
       end
     end
