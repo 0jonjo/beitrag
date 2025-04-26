@@ -103,4 +103,47 @@ RSpec.describe 'Posts Routes', type: :request do
       expect(json_response.first['id']).to eq(posts.first.id)
     end
   end
+
+  describe 'GET #ips_authors' do
+    let(:user1) { create(:user) }
+    let(:user2) { create(:user) }
+    let(:user3) { create(:user) }
+    let(:shared_ip1) { "192.168.1.1" }
+    let(:shared_ip2) { "192.168.1.2" }
+    let(:unique_ip) { "192.168.1.3" }
+    let(:json_response) { JSON.parse(response.body) }
+
+    before do
+      # Create posts with shared IPs
+      create(:post, user: user1, ip: shared_ip1)
+      create(:post, user: user2, ip: shared_ip1)
+      create(:post, user: user1, ip: shared_ip2)
+      create(:post, user: user3, ip: shared_ip2)
+      # Create post with unique IP
+      create(:post, user: user1, ip: unique_ip)
+
+      get ips_authors_api_v1_posts_path
+    end
+
+    it 'returns a success response' do
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'returns IPs used by multiple users' do
+      expect(json_response.size).to eq(2)
+      expect(json_response.map { |item| item['ip'] }).to include(shared_ip1, shared_ip2)
+    end
+
+    it 'does not include IPs used by only one user' do
+      expect(json_response.map { |item| item['ip'] }).not_to include(unique_ip)
+    end
+
+    it 'includes the correct user logins for each IP' do
+      shared_ip1_record = json_response.find { |item| item['ip'] == shared_ip1 }
+      shared_ip2_record = json_response.find { |item| item['ip'] == shared_ip2 }
+
+      expect(shared_ip1_record['logins']).to include(user1.login, user2.login)
+      expect(shared_ip2_record['logins']).to include(user1.login, user3.login)
+    end
+  end
 end
