@@ -1,8 +1,8 @@
 FactoryBot.define do
   factory :post do
-    title { "Sample Post Title" }
-    body { "This is a sample post body." }
-    ip { "192.0.2.126" }
+    title { Faker::Book.title }
+    body { Faker::Lorem.paragraph(sentence_count: 3) }
+    ip { Faker::Internet.ip_v4_address }
     association :user
   end
 end
