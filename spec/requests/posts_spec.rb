@@ -76,4 +76,31 @@ RSpec.describe 'Posts Routes', type: :request do
       end
     end
   end
+
+  describe 'GET #index' do
+    let!(:posts) { create_list(:post, 5) }
+    let(:limit) { 3 }
+    let(:json_response) { JSON.parse(response.body) }
+
+    before do
+      create_list(:rating, 3, post: posts.first, value: 5)
+      create_list(:rating, 2, post: posts.second, value: 4)
+      create_list(:rating, 1, post: posts.third, value: 3)
+      get api_v1_posts_path, params: { limit: limit }
+    end
+
+    it 'returns a list of posts' do
+      expect(response).to have_http_status(:ok)
+      expect(json_response.size).to eq(limit)
+    end
+
+    it 'returns the correct post attributes' do
+      expect(json_response.first).to include('id', 'title', 'body', 'average_rating')
+    end
+
+    it 'returns the top-rated posts' do
+      expect(json_response.count).to eq(limit)
+      expect(json_response.first['id']).to eq(posts.first.id)
+    end
+  end
 end

@@ -9,7 +9,7 @@ Rails.application.routes.draw do
   # root "posts#index"
   namespace :api do
     namespace :v1 do
-      resources :posts, only: [ :create ]
+      resources :posts, only: [ :index, :create ]
       resources :ratings, only: [ :create ]
     end
   end

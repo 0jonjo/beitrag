@@ -1,21 +1,35 @@
 module Api
-    module V1
-        class PostsController < ApplicationController
-            def create
-                result = PostCreatorService.new(post_params).call
+  module V1
+    class PostsController < ApplicationController
+      def index
+          limit = params.fetch(:limit, 10).to_i
+          posts = Post.top_rated(limit)
 
-                if result.success?
-                    render json: { post: result.created_post, user: result.user }, status: :created
-                else
-                    render json: { errors: result.errors }, status: :unprocessable_entity
-                end
-            end
+          render json: posts.map { |post|
+            {
+              id: post.id,
+              title: post.title,
+              body: post.body,
+              average_rating: post.average_rating
+            }
+          }
+      end
 
-            private
+      def create
+          result = PostCreatorService.new(post_params).call
 
-            def post_params
-                params.require(:post).permit(:title, :body, :ip, :login)
-            end
-        end
+          if result.success?
+              render json: { post: result.created_post, user: result.user }, status: :created
+          else
+              render json: { errors: result.errors }, status: :unprocessable_entity
+          end
+      end
+
+      private
+
+      def post_params
+          params.require(:post).permit(:title, :body, :ip, :login)
+      end
     end
+  end
 end
