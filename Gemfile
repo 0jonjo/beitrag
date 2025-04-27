@@ -53,6 +53,9 @@ group :development, :test do
 
   # Faker for generating fake data in tests
   gem "faker"
+
+  # Parallel for insert data in db
+  gem "parallel"
 end
 
 group :test do
