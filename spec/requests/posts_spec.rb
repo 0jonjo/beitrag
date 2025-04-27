@@ -114,12 +114,10 @@ RSpec.describe 'Posts Routes', type: :request do
     let(:json_response) { JSON.parse(response.body) }
 
     before do
-      # Create posts with shared IPs
       create(:post, user: user1, ip: shared_ip1)
       create(:post, user: user2, ip: shared_ip1)
       create(:post, user: user1, ip: shared_ip2)
       create(:post, user: user3, ip: shared_ip2)
-      # Create post with unique IP
       create(:post, user: user1, ip: unique_ip)
 
       get ips_authors_api_v1_posts_path
