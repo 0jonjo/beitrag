@@ -28,7 +28,7 @@ docker run -d --name postgres-beitrag -e POSTGRES_PASSWORD=postgres -e POSTGRES_
 Create, migrate, and seed the database:
 
 ```shell
-rails db:prepare
+rails db:create
 ```
 
 Serve the application:
@@ -43,8 +43,14 @@ Run tests:
 rspec
 ```
 
-To test a massive population of the database, run:
+To test a massive population of the database, start the application and then run:
 
 ```shell
 bash script/populate_db.sh
+```
+
+or
+
+```shell
+rails db:seed
 ```
