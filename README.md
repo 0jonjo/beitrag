@@ -19,7 +19,7 @@ Install dependencies:
 bundle install
 ```
 
-To development and tests, start the database in container running:
+To development and tests, set username and password in `database.yml` as 'postgres'. After, start the database in container running:
 
 ```shell
 docker run -d --name postgres-beitrag -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=postgres -p 5432:5432 postgres:latest
