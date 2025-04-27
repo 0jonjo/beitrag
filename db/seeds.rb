@@ -1,7 +1,6 @@
 require 'benchmark'
 require 'json'
 require 'set'
-require 'open3'
 
 # Configuration
 API_URL = "http://localhost:3000/api/v1"
@@ -20,22 +19,52 @@ logins = Array.new(USER_COUNT) { |i| "user#{i + 1}" }
 puts "Generating IP addresses at #{Time.now}"
 ips = Array.new(IP_COUNT) { |i| "192.168.1.#{i + 1}" }
 
-# Define curl helper method
-def curl_post(endpoint, data)
-  curl_cmd = %Q(curl -s -X POST "#{API_URL}/#{endpoint}" -H "Content-Type: application/json" -d '#{data.to_json}')
-  stdout, stderr, status = Open3.capture3(curl_cmd)
-
-  if !status.success?
-    puts "Error executing curl command: #{stderr}"
-    return nil
-  end
-
+# Define curl helper methods with keyword arguments for better readability
+def curl_post(endpoint:, data:)
   begin
-    JSON.parse(stdout)
-  rescue JSON::ParserError
-    puts "Failed to parse response: #{stdout}"
+    response = `curl -s -X POST "#{API_URL}/#{endpoint}" -H "Content-Type: application/json" -d '#{data.to_json}'`
+
+    unless $?.success?
+      puts "Error executing curl command"
+      return nil
+    end
+
+    begin
+      JSON.parse(response)
+    rescue JSON::ParserError
+      puts "Failed to parse response: #{response}"
+      nil
+    end
+  rescue StandardError => e
+    puts "Error: #{e.message}"
     nil
   end
+end
+
+# Helper methods for creating posts and ratings
+def create_post(title:, body:, login:, ip:)
+  post_data = {
+    post: {
+      title: title,
+      body: body,
+      login: login,
+      ip: ip
+    }
+  }
+
+  curl_post(endpoint: 'posts', data: post_data)
+end
+
+def create_rating(post_id:, user_id:, value:)
+  rating_data = {
+    rating: {
+      post_id: post_id,
+      user_id: user_id,
+      value: value
+    }
+  }
+
+  curl_post(endpoint: 'ratings', data: rating_data)
 end
 
 # Create posts and collect their IDs
@@ -48,16 +77,12 @@ Benchmark.bm do |bm|
       login = logins.sample
       ip = ips.sample
 
-      post_data = {
-        post: {
-          title: "Post #{i + 1}",
-          body: "This is the body of post #{i + 1}",
-          login: login,
-          ip: ip
-        }
-      }
-
-      response = curl_post('posts', post_data)
+      response = create_post(
+        title: "Post #{i + 1}",
+        body: "This is the body of post #{i + 1}",
+        login: login,
+        ip: ip
+      )
 
       if response && response['post'] && response['post']['id']
         post_ids << response['post']['id']
@@ -101,15 +126,11 @@ Benchmark.bm do |bm|
       rated_posts[post_id].add(user_id)
       rating_value = rand(1..5)
 
-      rating_data = {
-        rating: {
-          post_id: post_id,
-          user_id: user_id,
-          value: rating_value
-        }
-      }
-
-      curl_post('ratings', rating_data)
+      create_rating(
+        post_id: post_id,
+        user_id: user_id,
+        value: rating_value
+      )
 
       puts "Created #{i + 1} ratings at #{Time.now}" if (i + 1) % 1000 == 0
     end
