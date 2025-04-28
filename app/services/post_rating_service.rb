@@ -1,5 +1,5 @@
 class PostRatingService
-  attr_reader :post_id, :user_id, :value, :errors, :rating, :average_rating
+  attr_reader :errors, :rating, :average_rating
 
   def initialize(params)
     @post_id = params[:post_id]
@@ -11,8 +11,9 @@ class PostRatingService
 
   def call
     ActiveRecord::Base.transaction do
-      @post = find_post
-      @user = find_user
+      check_post
+      check_user
+      check_rating
       @rating = create_rating
       @average_rating = calculate_average_rating
       @success = true
@@ -32,21 +33,27 @@ class PostRatingService
 
   private
 
-  def find_post
-    Post.find(post_id)
+  def check_post
+    raise ActiveRecord::RecordNotFound.new("Post with ID #{@post_id} not found") unless Post.exists?(@post_id)
   end
 
-  def find_user
-    User.find(user_id)
+  def check_user
+    raise ActiveRecord::RecordNotFound.new("User with ID #{@user_id} not found") unless User.exists?(@user_id)
   end
 
+  def check_rating
+    existing_rating = Rating.exists?(post_id: @post_id, user_id: @user_id)
+    if existing_rating
+      rating = Rating.new
+      rating.errors.add(:base, "User has already rated this post")
+      raise ActiveRecord::RecordInvalid.new(rating)
+    end
+  end
   def create_rating
-    Rating.create!(post_id: post_id, user_id: user_id, value: value)
+    Rating.create!(post_id: @post_id, user_id: @user_id, value: @value)
   end
 
   def calculate_average_rating
-    @post.with_lock do
-      @post.ratings.average(:value).to_f.round(2)
-    end
+    Rating.where(post_id: @post_id).average(:value).to_f.round(2)
   end
 end

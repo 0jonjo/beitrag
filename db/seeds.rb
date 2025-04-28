@@ -6,9 +6,9 @@ require 'parallel'
 API_URL = "http://localhost:3000/api/v1"
 USER_COUNT = 100
 IP_COUNT = 50
-POSTS_COUNT = 10000
+POSTS_COUNT = 200000
 RATINGS_PERCENTAGE = 75
-PARALLEL_THREADS = 30
+PARALLEL_THREADS = 10
 
 puts "Starting data generation at #{Time.now}"
 
