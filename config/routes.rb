@@ -9,7 +9,9 @@ Rails.application.routes.draw do
   # root "posts#index"
   namespace :api do
     namespace :v1 do
-      resources :posts, only: [ :index, :create ]
+      resources :posts, only: [ :index, :create ] do
+        get :ips_authors, on: :collection
+      end
       resources :ratings, only: [ :create ]
     end
   end

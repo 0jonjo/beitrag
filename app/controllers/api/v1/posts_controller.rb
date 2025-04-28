@@ -25,6 +25,19 @@ module Api
           end
       end
 
+      def ips_authors
+        ips_with_multiple_authors = Post.ips_with_multiple_authors
+
+        result = ips_with_multiple_authors.map do |record|
+          {
+            ip: record.ip,
+            logins: record.logins
+          }
+        end
+
+        render json: result
+      end
+
       private
 
       def post_params

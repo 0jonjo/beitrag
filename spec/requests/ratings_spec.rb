@@ -57,7 +57,7 @@ RSpec.describe 'Ratings Routes', type: :request do
         }.not_to change(Rating, :count)
 
         expect(response).to have_http_status(:unprocessable_entity)
-        expect(json_response['errors']).to include("Couldn't find Post with 'id'=9999")
+        expect(json_response['errors']).to include("Post with ID 9999 not found")
       end
 
       it 'does not create a rating for non-existent user' do
@@ -66,7 +66,7 @@ RSpec.describe 'Ratings Routes', type: :request do
         }.not_to change(Rating, :count)
 
         expect(response).to have_http_status(:unprocessable_entity)
-        expect(json_response['errors']).to include("Couldn't find User with 'id'=9999")
+        expect(json_response['errors']).to include("User with ID 9999 not found")
       end
     end
 
@@ -79,7 +79,7 @@ RSpec.describe 'Ratings Routes', type: :request do
         }.not_to change(Rating, :count)
 
         expect(response).to have_http_status(:unprocessable_entity)
-        expect(json_response['errors']).to include("User can rate a post only once")
+        expect(json_response['errors']).to include("User has already rated this post")
       end
     end
 
