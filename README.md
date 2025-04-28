@@ -46,11 +46,11 @@ rspec
 To test a massive population of the database, start the application and then run:
 
 ```shell
-bash script/populate_db.sh
+rails db:seed
 ```
 
 or
 
 ```shell
-rails db:seed
+bash script/populate_db.sh
 ```
