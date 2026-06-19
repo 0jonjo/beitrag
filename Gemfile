@@ -60,5 +60,5 @@ end
 
 group :test do
   # Should matchers for Model tests
-  gem "shoulda-matchers", "~> 7.0"
+  gem "shoulda-matchers", "~> 8.0"
 end
